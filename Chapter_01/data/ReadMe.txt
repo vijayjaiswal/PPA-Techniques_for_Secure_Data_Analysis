@@ -1,0 +1,1 @@
+fake_people_datainfo.csv: https://www.kaggle.com/datasets/shuvokumarbasak4004/fake-dataset-for-practice?select=datainfo.csv 
