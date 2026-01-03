@@ -1,0 +1,65 @@
+Step 1: Setup AWS CLI and IAM Permissions
+
+1. Configure AWS CLI
+   Run the following command to set up your AWS credentials and default region.
+   
+   ```bash
+   aws configure
+   ```
+   
+   You will be prompted to enter:
+   - AWS Access Key ID
+   - AWS Secret Access Key
+   - Default region name (e.g., us-east-1)
+   - Default output format (e.g., json)
+
+   To verify the identity currently configured:
+   
+   ```bash
+   aws sts get-caller-identity
+   ```
+
+2. IAM Permissions for KMS
+   Ensure the IAM user or role you are using has the necessary permissions to create and manage KMS keys. 
+   
+   Attach the following JSON policy to your IAM identity. This policy grants permissions to create keys, managing aliases, and perform cryptographic operations, adhering to the principle of least privilege for this task.
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "AllowKeyCreationAndManagement",
+               "Effect": "Allow",
+               "Action": [
+                   "kms:CreateKey",
+                   "kms:DescribeKey",
+                   "kms:ListKeys",
+                   "kms:ListAliases",
+                   "kms:CreateAlias",
+                   "kms:DeleteAlias",
+                   "kms:UpdateAlias",
+                   "kms:EnableKey",
+                   "kms:DisableKey",
+                   "kms:ScheduleKeyDeletion",
+                   "kms:CancelKeyDeletion"
+               ],
+               "Resource": "*"
+           },
+           {
+               "Sid": "AllowCryptographicOperations",
+               "Effect": "Allow",
+               "Action": [
+                   "kms:Encrypt",
+                   "kms:Decrypt",
+                   "kms:ReEncrypt*",
+                   "kms:GenerateDataKey",
+                   "kms:GenerateDataKeyWithoutPlaintext"
+               ],
+               "Resource": "*"
+           }
+       ]
+   }
+   ```
+
+   Note: In a production environment, you should further restrict the "Resource" field in the "AllowCryptographicOperations" statement to specific Key ARNs rather than "*" to strictly enforce least privilege.
