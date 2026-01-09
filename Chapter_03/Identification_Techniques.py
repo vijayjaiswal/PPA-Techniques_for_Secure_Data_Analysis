@@ -48,3 +48,37 @@ print(identifier_report.sort_values(
     by=["possible_identifier", "uniqueness_ratio"],
     ascending=False
 ))
+
+
+def generalize_age(age):
+    if age < 20: 
+        return '0-20' 
+    elif age < 40: 
+        return '20-40' 
+    elif age < 60: 
+        return '40-60' 
+    else: 
+        return '60+'
+
+df['age_group'] = df['age'].apply(generalize_age)
+print(df['age'],df['age_group'].value_counts())
+print(df[['age','age_group']])
+
+print('***********************************')
+
+quasi_identifiers = ['age', 'zip_code']
+df['age_group'] = pd.cut(df['age'], bins=[0, 20, 40, 60, 100], labels=['0-20','20-40','40-60','60+'])
+df['zip_generalized'] = df['zip_code'].astype(str).str[:3]
+print(df[['age','age_group']])
+print(df[['zip_code','zip_generalized']])
+
+equivalence_class_counts = df.groupby(['age_group', 'zip_generalized']).size() 
+print(equivalence_class_counts)
+print('--------------------------')
+
+# Set k-anonymity threshold
+k = 3 
+
+# Identify groups violating k-anonymity
+print(equivalence_class_counts[equivalence_class_counts < k]) 
+print('***********************************')
