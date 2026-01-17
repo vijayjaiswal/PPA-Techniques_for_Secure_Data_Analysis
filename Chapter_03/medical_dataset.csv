@@ -1,0 +1,9 @@
+record_id,full_name,email,phone_number,national_id,age,gender,zip_code,city,occupation,medical_condition,annual_income
+1,Rahul Sharma,rahul.sharma@gmail.com,919876543210,IDA1234567,34,M,110001,Delhi,Software Engineer,Diabetes,1800000
+2,Anita Verma,anita.verma@yahoo.com,919812345678,IDB2345678,29,F,110001,Delhi,Data Analyst,Asthma,1200000
+3,Suresh Iyer,suresh.iyer@outlook.com,919823456789,IDC3456789,41,M,560001,Bengaluru,Project Manager,Hypertension,2200000
+4,Neha Gupta,neha.gupta@gmail.com,919834567890,IDD4567890,36,F,560001,Bengaluru,Product Manager,Diabetes,2000000
+5,Amit Patel,amit.patel@gmail.com,919845678901,IDE5678901,52,M,380001,Ahmedabad,Business Owner,Cardiac,3000000
+6,Kavita Rao,kavita.rao@yahoo.com,919856789012,IDF6789012,47,F,380001,Ahmedabad,Consultant,Arthritis,1600000
+7,Rohan Mehta,rohan.mehta@gmail.com,919867890123,IDG7890123,26,M,400001,Mumbai,Marketing Exec,Anxiety,900000
+8,Priya Nair,priya.nair@outlook.com,919878901234,IDH8901234,31,F,400001,Mumbai,UX Designer,Migraine,1400000
