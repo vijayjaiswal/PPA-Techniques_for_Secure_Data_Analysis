@@ -1,0 +1,9 @@
+numpy
+Pyfhel
+pandas
+matplotlib
+scipy
+pyspark
+cryptography
+boto3
+torch
