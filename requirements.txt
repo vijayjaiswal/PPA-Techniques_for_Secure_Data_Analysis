@@ -7,3 +7,4 @@ pyspark
 cryptography
 boto3
 torch
+diffprivlib
