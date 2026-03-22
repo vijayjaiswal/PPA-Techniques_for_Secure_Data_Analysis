@@ -1,6 +1,7 @@
 import collections
 import numpy as np
 import sys
+import tensorflow as tf
 
 # Apply monkeypatch for older TensorFlow / TensorFlow Federated versions
 # running on newer numpy versions (>= 1.20)
@@ -13,8 +14,6 @@ try:
     np.complex = complex
 except AttributeError:
     pass
-
-import tensorflow as tf
 
 # Suppress TF warnings for cleaner output
 tf.get_logger().setLevel('ERROR')
@@ -29,7 +28,8 @@ except ImportError:
     print("TensorFlow Federated (TFF) pip packages are natively built for Linux/macOS.")
     print("On Windows, TFF typically requires WSL (Windows Subsystem for Linux).")
     print("Because you are running natively on Windows, we are dynamically falling back")
-    print("to a PURE TensorFlow simulation of the exact same Non-IID FedAvg scenario.")
+    print("to a PURE TensorFlow simulation of the exact same Non-IID FedAvg scenario,")
+    print("which is explicitly configured to be used by the GPU ONLY.")
     print("="*60 + "\n")
 
 
@@ -46,6 +46,7 @@ def create_keras_model():
 # TFF IMPLEMENTATION (Runs if TFF is available, e.g. Linux/WSL)
 # ==============================================================================
 if HAS_TFF:
+    print("TFF is available. Running TFF implementation...")
     def load_and_preprocess_emnist_tff():
         emnist_train, emnist_test = tff.simulation.datasets.emnist.load_data()
         print(f"Total simulated clients (writers) available in TFF: {len(emnist_train.client_ids)}")
@@ -88,7 +89,7 @@ if HAS_TFF:
             active_clients = [c for c in sampled_clients if np.random.rand() > DROPOUT_RATE]
             dropouts = CLIENTS_PER_ROUND - len(active_clients)
             print(f"Round {round_num}: Selected {CLIENTS_PER_ROUND} clients. "
-                  f"Active: {len(active_clients)} (Simulated {dropouts} dropouts via realistic latency).")
+                    f"Active: {len(active_clients)} (Simulated {dropouts} dropouts via realistic latency).")
             federated_train_data = make_federated_data_tff(emnist_train, active_clients)
             result = training_process.next(state, federated_train_data)
             state = result.state
@@ -99,80 +100,91 @@ if HAS_TFF:
 # PURE TENSORFLOW FALLBACK IMPLEMENTATION (Runs natively on Windows)
 # ==============================================================================
 else:
+    print("TFF not available. Running Pure TF Fallback simulation...")
     def simulate_fl_training_fallback():
         print("--- Starting Pure TF Fallback Federated Learning Simulation (FedAvg) ---")
         
-        # 1. Simulate Non-IID Data via Standard MNIST Partitioning
-        (x_train, y_train), _ = tf.keras.datasets.mnist.load_data()
-        x_train = x_train.reshape(-1, 784).astype(np.float32) / 255.0
-        
-        TOTAL_SIMULATED_CLIENTS = 100
-        # Sort by labels to synthesize an extreme non-IID environment!
-        sort_indices = np.argsort(y_train)
-        x_train_sorted = x_train[sort_indices]
-        y_train_sorted = y_train[sort_indices]
-        
-        # Partition data among clients
-        client_data = {}
-        examples_per_client = len(x_train) // TOTAL_SIMULATED_CLIENTS
-        for i in range(TOTAL_SIMULATED_CLIENTS):
-            start = i * examples_per_client
-            end = start + examples_per_client
-            client_data[i] = (x_train_sorted[start:end], y_train_sorted[start:end])
-        
-        print(f"Total simulated clients (devices) created: {TOTAL_SIMULATED_CLIENTS}")
+        # We try to use GPU if available, otherwise CPU
+        gpus = tf.config.list_physical_devices('GPU')
+        if not gpus:
+            print("INFO: No GPU detected. Running on CPU...")
+            device_name = '/CPU:0'
+        else:
+            print(f"INFO: Detected GPU(s) {gpus[0].name}. Configuring simulation for GPU usage...")
+            device_name = '/GPU:0'
 
-        # Initialize the global server model
-        global_model = create_keras_model()
-        global_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.02), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-        
-        NUM_ROUNDS = 5
-        CLIENTS_PER_ROUND = 10
-        DROPOUT_RATE = 0.2  # Simulate a 20% dropout rate
-        
-        for round_num in range(1, NUM_ROUNDS + 1):
-            # Sample a cohort of devices randomly
-            sampled_clients = np.random.choice(range(TOTAL_SIMULATED_CLIENTS), size=CLIENTS_PER_ROUND, replace=False)
+        with tf.device(device_name):
+            # 1. Simulate Non-IID Data via Standard MNIST Partitioning
+            (x_train, y_train), _ = tf.keras.datasets.mnist.load_data()
+            x_train = x_train.reshape(-1, 784).astype(np.float32) / 255.0
             
-            # Simulate network failures / client timeout
-            active_clients = [c for c in sampled_clients if np.random.rand() > DROPOUT_RATE]
-            dropouts = CLIENTS_PER_ROUND - len(active_clients)
+            TOTAL_SIMULATED_CLIENTS = 100
+            # Sort by labels to synthesize an extreme non-IID environment!
+            sort_indices = np.argsort(y_train)
+            x_train_sorted = x_train[sort_indices]
+            y_train_sorted = y_train[sort_indices]
             
-            print(f"Round {round_num}: Selected {CLIENTS_PER_ROUND} clients. "
-                  f"Active: {len(active_clients)} (Simulated {dropouts} dropouts via realistic latency).")
+            # Partition data among clients
+            client_data = {}
+            examples_per_client = len(x_train) // TOTAL_SIMULATED_CLIENTS
+            for i in range(TOTAL_SIMULATED_CLIENTS):
+                start = i * examples_per_client
+                end = start + examples_per_client
+                client_data[i] = (x_train_sorted[start:end], y_train_sorted[start:end])
             
-            # Local Client Training (Simulated)
-            client_weights = []
-            metrics_acc = []
-            metrics_loss = []
+            print(f"Total simulated clients (devices) created: {TOTAL_SIMULATED_CLIENTS}")
+
+            # Initialize the global server model
+            global_model = create_keras_model()
+            global_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.02), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
             
-            for client_id in active_clients:
-                # 1. Download global model weights to client device
-                client_model = create_keras_model()
-                client_model.set_weights(global_model.get_weights())
-                client_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.02),
-                                     loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            NUM_ROUNDS = 5
+            CLIENTS_PER_ROUND = 10
+            DROPOUT_RATE = 0.2  # Simulate a 20% dropout rate
+            
+            for round_num in range(1, NUM_ROUNDS + 1):
+                # Sample a cohort of devices randomly
+                sampled_clients = np.random.choice(range(TOTAL_SIMULATED_CLIENTS), size=CLIENTS_PER_ROUND, replace=False)
                 
-                # 2. Local Training on purely Non-IID local data subset
-                cx, cy = client_data[client_id]
-                history = client_model.fit(cx, cy, batch_size=20, epochs=1, verbose=0)
+                # Simulate network failures / client timeout
+                active_clients = [c for c in sampled_clients if np.random.rand() > DROPOUT_RATE]
+                dropouts = CLIENTS_PER_ROUND - len(active_clients)
                 
-                client_weights.append(client_model.get_weights())
-                metrics_loss.append(history.history['loss'][-1])
-                metrics_acc.append(history.history['accuracy'][-1])
+                print(f"Round {round_num}: Selected {CLIENTS_PER_ROUND} clients. "
+                      f"Active: {len(active_clients)} (Simulated {dropouts} dropouts via realistic latency).")
                 
-            # 3. Server Aggregation (FedAvg) over the Active Clients
-            if client_weights:
-                new_global_weights = []
-                # Unweighted average of layers
-                for layers in zip(*client_weights):
-                    new_global_weights.append(np.mean(layers, axis=0))
-                # Update Server Global Model
-                global_model.set_weights(new_global_weights)
+                # Local Client Training (Simulated)
+                client_weights = []
+                metrics_acc = []
+                metrics_loss = []
                 
-                print(f"Round {round_num} metrics: OrderedDict([('sparse_categorical_accuracy', {np.mean(metrics_acc):.4f}), ('loss', {np.mean(metrics_loss):.4f})])\n")
-            else:
-                print(f"Round {round_num} failed: All selected clients dropped out!\n")
+                for client_id in active_clients:
+                    # 1. Download global model weights to client device
+                    client_model = create_keras_model()
+                    client_model.set_weights(global_model.get_weights())
+                    client_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.02),
+                                         loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+                    
+                    # 2. Local Training on purely Non-IID local data subset
+                    cx, cy = client_data[client_id]
+                    history = client_model.fit(cx, cy, batch_size=20, epochs=1, verbose=0)
+                    
+                    client_weights.append(client_model.get_weights())
+                    metrics_loss.append(history.history['loss'][-1])
+                    metrics_acc.append(history.history['accuracy'][-1])
+                    
+                # 3. Server Aggregation (FedAvg) over the Active Clients
+                if client_weights:
+                    new_global_weights = []
+                    # Unweighted average of layers
+                    for layers in zip(*client_weights):
+                        new_global_weights.append(np.mean(layers, axis=0))
+                    # Update Server Global Model
+                    global_model.set_weights(new_global_weights)
+                    
+                    print(f"Round {round_num} metrics: OrderedDict([('sparse_categorical_accuracy', {np.mean(metrics_acc):.4f}), ('loss', {np.mean(metrics_loss):.4f})])\n")
+                else:
+                    print(f"Round {round_num} failed: All selected clients dropped out!\n")
 
 
 if __name__ == "__main__":

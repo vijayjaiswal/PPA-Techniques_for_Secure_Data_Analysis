@@ -1,0 +1,71 @@
+# ============================================================
+# requirements.txt — Windows + NVIDIA GPU via DirectML
+# ============================================================
+#
+# No CUDA or cuDNN installation required!
+# DirectML uses Windows GPU drivers directly.
+#
+# Prerequisites:
+#   1. Update GPU driver to latest:
+#      NVIDIA: https://www.nvidia.com/Download/index.aspx
+#   2. Visual C++ Build Tools (for Pyfhel):
+#      https://visualstudio.microsoft.com/visual-cpp-build-tools/
+#   3. CMake (for Pyfhel):
+#      winget install Kitware.CMake
+#
+# INSTALL ORDER — run these commands in sequence:
+#
+#   Step 1: PyTorch with CUDA 11.8 (uses CUDA path, not DirectML)
+#     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+#   Step 2: TensorFlow CPU base (required by DirectML plugin)
+#     pip install tensorflow-cpu==2.10.0
+#
+#   Step 3: DirectML GPU plugin for TensorFlow
+#     pip install tensorflow-directml-plugin
+#
+#   Step 4: Remaining packages
+#     pip install -r requirements.txt
+#
+# ============================================================
+
+# Core scientific stack
+numpy
+pandas
+matplotlib
+scipy
+
+# Privacy / cryptography
+cryptography
+diffprivlib
+
+# Homomorphic encryption
+# Requires CMake + Visual C++ Build Tools on Windows
+Pyfhel
+
+# AWS SDK
+boto3
+
+# PyTorch with CUDA 11.8 GPU — install separately via Step 1 above
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Differential privacy for PyTorch (GPU-compatible via CUDA)
+opacus
+
+# TensorFlow GPU via DirectML — install via Steps 2 & 3 above:
+#   tensorflow-cpu==2.10.0     <- base (no CUDA conflict)
+#   tensorflow-directml-plugin <- adds DirectML GPU on top
+# DO NOT install standard 'tensorflow' or 'tensorflow-gpu' alongside these.
+tf-keras
+
+# Federated learning
+# NOTE: tensorflow_federated requires TF 2.15, incompatible with
+# tensorflow-directml-plugin (max TF 2.10). Use WSL2 if you need
+# both GPU + federated learning together.
+# Uncomment only if GPU is NOT needed for federated learning:
+# tensorflow_federated
+
+# PySpark
+pyspark
+
+syft

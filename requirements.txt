@@ -9,3 +9,7 @@ boto3
 torch
 diffprivlib
 opacus
+tensorflow
+keras
+tensorflow_federated
+tensorflow-directml-plugin
