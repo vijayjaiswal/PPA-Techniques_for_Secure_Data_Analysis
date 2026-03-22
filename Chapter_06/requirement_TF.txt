@@ -1,33 +1,3 @@
-# ============================================================
-# requirements.txt — Windows + NVIDIA GPU via DirectML
-# ============================================================
-#
-# No CUDA or cuDNN installation required!
-# DirectML uses Windows GPU drivers directly.
-#
-# Prerequisites:
-#   1. Update GPU driver to latest:
-#      NVIDIA: https://www.nvidia.com/Download/index.aspx
-#   2. Visual C++ Build Tools (for Pyfhel):
-#      https://visualstudio.microsoft.com/visual-cpp-build-tools/
-#   3. CMake (for Pyfhel):
-#      winget install Kitware.CMake
-#
-# INSTALL ORDER — run these commands in sequence:
-#
-#   Step 1: PyTorch with CUDA 11.8 (uses CUDA path, not DirectML)
-#     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-#
-#   Step 2: TensorFlow CPU base (required by DirectML plugin)
-#     pip install tensorflow-cpu==2.10.0
-#
-#   Step 3: DirectML GPU plugin for TensorFlow
-#     pip install tensorflow-directml-plugin
-#
-#   Step 4: Remaining packages
-#     pip install -r requirements.txt
-#
-# ============================================================
 
 # Core scientific stack
 numpy
@@ -69,3 +39,7 @@ tf-keras
 pyspark
 
 syft
+
+flwr
+torch
+torchvision

@@ -1,0 +1,21 @@
+[project]
+name = "flower-fl-chapter-06"
+version = "0.1.0"
+description = "Flower FL simulation for Chapter 06"
+dependencies = [
+    "flwr[simulation]",
+    "torch",
+    "numpy",
+]
+
+[tool.flwr.app]
+publisher = "vijayjaiswalvictory@gmail.com"
+
+[tool.flwr.app.components]
+serverapp = "flower_framework_agnostic_fl:server_app"
+clientapp = "flower_framework_agnostic_fl:client_app"
+
+[tool.flwr.federated]
+# Default configuration for flwr run
+[tool.flwr.federated.options]
+num-rounds = 3

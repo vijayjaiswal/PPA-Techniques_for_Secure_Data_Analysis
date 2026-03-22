@@ -80,7 +80,7 @@ def train_local_model(weights, x, y):
 global_weights = np.random.randn(5, 1)
 n_rounds = 3
 
-print(f"\n🚀 Starting Federated Learning Simulation across {len(ds_client.datasites)} silos...")
+print(f"\n Starting Federated Learning Simulation across {len(ds_client.datasites)} silos...")
 
 for r in range(n_rounds):
     print(f"\n--- Round {r+1} ---")
@@ -101,6 +101,6 @@ for r in range(n_rounds):
     print("Aggregating local updates at the Data Scientist node...")
     global_weights = np.mean(local_updates, axis=0)
 
-print("\n✅ Success! Cross-Silo FL complete.")
+print("\n Success! Cross-Silo FL complete.")
 print("Model accuracy simulation: Optimized weights found.")
 print(f"Final Global Weights (first 3): \n{global_weights[:3]}")
