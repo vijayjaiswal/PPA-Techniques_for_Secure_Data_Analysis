@@ -1,0 +1,15 @@
+
+================ BIAS AUDIT REPORT ================
+1. Objective: Ensure fairness in the approval model.
+2. Audit Tools Used: Fairlearn.
+3. Findings (Unmitigated):
+   - Discovered significant demographic parity difference.
+   - The model favored Group 1 over Group 0.
+4. Mitigation Strategy:
+   - Applied Exponentiated Gradient algorithm.
+   - Constraint: Demographic Parity.
+5. Post-Mitigation Verification:
+   - Selection rates are now balanced across groups.
+   - Verified that demographic parity difference is minimized.
+6. Conclusion: Mitigation successful. Model is ready for review.
+===================================================

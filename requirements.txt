@@ -12,4 +12,13 @@ opacus
 tensorflow
 keras
 tensorflow_federated
-tensorflow-directml-plugin
+sdv>=1.0.0
+adversarial-robustness-toolbox 
+torch 
+numpy 
+matplotlib 
+scikit-learn
+seaborn
+fairlearn
+witwidget
+huggingface_hub
