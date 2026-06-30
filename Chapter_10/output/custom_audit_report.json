@@ -1,0 +1,165 @@
+{
+  "report_metadata": {
+    "title": "Custom Security Audit Report",
+    "generated_at": "2026-06-30 11:39:11",
+    "auditor": "custom_audit_scripts.py",
+    "version": "1.0"
+  },
+  "summary": {
+    "file_permission_violations": 0,
+    "log_anomalies_detected": 3,
+    "s3_non_compliant_buckets": 3,
+    "sensitive_data_exposures": 3,
+    "overall_risk": "HIGH"
+  },
+  "sections": {
+    "file_permissions": [],
+    "log_anomalies": [
+      {
+        "rule_id": "ANOMALY-001",
+        "rule_name": "Repeated Authentication Failures",
+        "severity": "HIGH",
+        "match_count": 11,
+        "threshold": 5,
+        "sample_matches": [
+          {
+            "line_number": 31,
+            "content": "2026-06-30 08:07:30 ERROR Authentication failure for user 'admin' from 192.168.1.183"
+          },
+          {
+            "line_number": 32,
+            "content": "2026-06-30 08:07:45 ERROR Authentication failure for user 'admin' from 192.168.1.163"
+          },
+          {
+            "line_number": 33,
+            "content": "2026-06-30 08:08:00 ERROR Authentication failure for user 'admin' from 192.168.1.150"
+          }
+        ]
+      },
+      {
+        "rule_id": "ANOMALY-002",
+        "rule_name": "Privilege Escalation Attempts",
+        "severity": "CRITICAL",
+        "match_count": 3,
+        "threshold": 3,
+        "sample_matches": [
+          {
+            "line_number": 51,
+            "content": "2026-06-30 08:12:30 WARNING sudo: unauthorized attempt by user 'bob' to run command as root"
+          },
+          {
+            "line_number": 53,
+            "content": "2026-06-30 08:13:00 WARNING sudo: unauthorized attempt by user 'bob' to run command as root"
+          },
+          {
+            "line_number": 56,
+            "content": "2026-06-30 08:13:45 WARNING sudo: unauthorized attempt by user 'bob' to run command as root"
+          }
+        ]
+      },
+      {
+        "rule_id": "ANOMALY-004",
+        "rule_name": "Service Crash / Restart Loops",
+        "severity": "HIGH",
+        "match_count": 4,
+        "threshold": 3,
+        "sample_matches": [
+          {
+            "line_number": 81,
+            "content": "2026-06-30 08:20:00 CRITICAL Service worker-3 segfault at 0xdcb2, core dump generated"
+          },
+          {
+            "line_number": 83,
+            "content": "2026-06-30 08:20:30 CRITICAL Service worker-3 segfault at 0x1bbc, core dump generated"
+          },
+          {
+            "line_number": 85,
+            "content": "2026-06-30 08:21:00 CRITICAL Service worker-3 segfault at 0xce24, core dump generated"
+          }
+        ]
+      }
+    ],
+    "s3_encryption": [
+      {
+        "bucket": "dev-temp-uploads",
+        "issues": [
+          {
+            "check": "encryption",
+            "severity": "CRITICAL",
+            "detail": "No server-side encryption configured",
+            "remediation": "aws s3api put-bucket-encryption --bucket dev-temp-uploads --server-side-encryption-configuration '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\"}}]}'"
+          },
+          {
+            "check": "public_access",
+            "severity": "CRITICAL",
+            "detail": "Public access block not enabled",
+            "remediation": "aws s3api put-public-access-block --bucket dev-temp-uploads --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+          },
+          {
+            "check": "versioning",
+            "severity": "WARNING",
+            "detail": "Bucket versioning not enabled",
+            "remediation": "aws s3api put-bucket-versioning --bucket dev-temp-uploads --versioning-configuration Status=Enabled"
+          },
+          {
+            "check": "logging",
+            "severity": "MEDIUM",
+            "detail": "Access logging not enabled",
+            "remediation": "Enable server access logging for dev-temp-uploads"
+          }
+        ]
+      },
+      {
+        "bucket": "staging-ml-models",
+        "issues": [
+          {
+            "check": "logging",
+            "severity": "MEDIUM",
+            "detail": "Access logging not enabled",
+            "remediation": "Enable server access logging for staging-ml-models"
+          }
+        ]
+      },
+      {
+        "bucket": "backup-db-snapshots",
+        "issues": [
+          {
+            "check": "versioning",
+            "severity": "WARNING",
+            "detail": "Bucket versioning not enabled",
+            "remediation": "aws s3api put-bucket-versioning --bucket backup-db-snapshots --versioning-configuration Status=Enabled"
+          }
+        ]
+      }
+    ],
+    "sensitive_data": [
+      {
+        "rule_id": "PII-001",
+        "rule_name": "Social Security Number (SSN)",
+        "severity": "CRITICAL",
+        "regulation": "HIPAA / PCI-DSS",
+        "line_number": 121,
+        "masked_value": "123*****789",
+        "context": "2026-06-30 08:30:00 DEBUG Processing payment for SSN 123-45-..."
+      },
+      {
+        "rule_id": "PII-002",
+        "rule_name": "Credit Card Number (Visa/MC)",
+        "severity": "CRITICAL",
+        "regulation": "PCI-DSS",
+        "line_number": 121,
+        "masked_value": "453*************012",
+        "context": "2026-06-30 08:30:00 DEBUG Processing payment for SSN 123-45-..."
+      },
+      {
+        "rule_id": "SEC-001",
+        "rule_name": "AWS Access Key ID",
+        "severity": "CRITICAL",
+        "regulation": "Internal Security Policy",
+        "line_number": 151,
+        "masked_value": "AKI**************PLE",
+        "context": "2026-06-30 08:37:30 DEBUG API key: AKIAIOSFODNN7EXAMPLE in r..."
+      }
+    ]
+  }
+}
