@@ -1,0 +1,67 @@
+[
+  {
+    "threat_id": "T-002",
+    "stride_category": "Information Disclosure",
+    "title": "Model Inversion via Aggregated Weights",
+    "description": "An adversary with access to the global model or gradient updates performs a model inversion attack to reconstruct sensitive training data from individual clients.",
+    "affected_component": "Central Aggregator / Global Model Store",
+    "dread_score": 8.2,
+    "risk_level": "CRITICAL",
+    "remediation": "Apply Differential Privacy (DP) noise to gradient updates before submission. Use Secure Multi-Party Computation (SMPC) for aggregation.",
+    "status": "Open",
+    "owner": "Security Team",
+    "date_identified": "2026-06-29"
+  },
+  {
+    "threat_id": "T-004",
+    "stride_category": "Denial of Service",
+    "title": "Flooding Aggregator with Bogus Updates",
+    "description": "An attacker floods the aggregation server with a large volume of garbage gradient updates, preventing legitimate training rounds.",
+    "affected_component": "Central Aggregator",
+    "dread_score": 6.8,
+    "risk_level": "HIGH",
+    "remediation": "Implement rate limiting and client authentication. Deploy anomaly detection on incoming gradient volumes.",
+    "status": "Open",
+    "owner": "Security Team",
+    "date_identified": "2026-06-29"
+  },
+  {
+    "threat_id": "T-001",
+    "stride_category": "Spoofing",
+    "title": "Malicious Client Sends Fake Model Updates",
+    "description": "An attacker compromises a client device and sends fabricated gradient updates to the central aggregator, poisoning the global model.",
+    "affected_component": "Client Device -> Aggregator",
+    "dread_score": 6.4,
+    "risk_level": "HIGH",
+    "remediation": "Implement Byzantine-robust aggregation (e.g., Krum, Trimmed Mean). Require client authentication via mutual TLS.",
+    "status": "Open",
+    "owner": "Security Team",
+    "date_identified": "2026-06-29"
+  },
+  {
+    "threat_id": "T-003",
+    "stride_category": "Tampering",
+    "title": "Modification of Global Model During Aggregation",
+    "description": "A man-in-the-middle attacker intercepts and modifies the aggregated global model before it is distributed back to clients.",
+    "affected_component": "Aggregator -> Global Model Store",
+    "dread_score": 6.2,
+    "risk_level": "HIGH",
+    "remediation": "Enforce end-to-end encryption (TLS 1.3) on all channels. Use cryptographic checksums to verify model integrity.",
+    "status": "Open",
+    "owner": "Security Team",
+    "date_identified": "2026-06-29"
+  },
+  {
+    "threat_id": "T-005",
+    "stride_category": "Elevation of Privilege",
+    "title": "Unauthorized Access to Aggregation Controls",
+    "description": "An attacker gains administrative access to the aggregation server and alters the training hyper-parameters or model architecture.",
+    "affected_component": "Central Aggregator Admin Interface",
+    "dread_score": 5.4,
+    "risk_level": "MEDIUM",
+    "remediation": "Enforce MFA on admin interfaces. Apply principle of least privilege. Conduct regular access audits.",
+    "status": "Open",
+    "owner": "Security Team",
+    "date_identified": "2026-06-29"
+  }
+]

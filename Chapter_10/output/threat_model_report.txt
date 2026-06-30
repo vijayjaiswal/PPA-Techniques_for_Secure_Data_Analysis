@@ -1,0 +1,35 @@
+============================================================
+THREAT MODEL REPORT - FEDERATED LEARNING SYSTEM
+Generated: 2026-06-29 19:24:19
+============================================================
+
+1. SYSTEM OVERVIEW
+   Architecture: Federated Learning with central aggregation
+   Components: 4 client devices, 1 central aggregator, 1 model store
+   Data Flow: Local gradients -> Aggregator -> Global model
+
+2. THREAT ANALYSIS METHODOLOGY
+   - STRIDE for threat identification
+   - DREAD for risk scoring and prioritization
+
+3. THREATS IDENTIFIED: 5
+   [T-002] Information Disclosure Score: 8.2 (CRITICAL)
+   [T-004] Denial of Service      Score: 6.8 (HIGH)
+   [T-001] Spoofing               Score: 6.4 (HIGH)
+   [T-003] Tampering              Score: 6.2 (HIGH)
+   [T-005] Elevation of Privilege Score: 5.4 (MEDIUM)
+
+4. PRIORITY REMEDIATION ACTIONS
+   a) Implement Differential Privacy (epsilon-DP) on gradient updates
+   b) Deploy Secure Multi-Party Computation for aggregation
+   c) Enforce mutual TLS and Byzantine-robust aggregation
+   d) Apply rate limiting and anomaly detection
+
+5. ARTIFACTS GENERATED
+   - DFD Diagram       : D:\Vijay_Personal\workspace\Projects\Author_Books\Code\PPA-Techniques_for_Secure_Data_Analysis\Chapter_10\output\fl_dfd_diagram.png
+   - DREAD Heatmap     : D:\Vijay_Personal\workspace\Projects\Author_Books\Code\PPA-Techniques_for_Secure_Data_Analysis\Chapter_10\output\dread_heatmap.png
+   - Privacy Trade-off : D:\Vijay_Personal\workspace\Projects\Author_Books\Code\PPA-Techniques_for_Secure_Data_Analysis\Chapter_10\output\dp_privacy_utility_tradeoff.png
+   - Risk Register     : D:\Vijay_Personal\workspace\Projects\Author_Books\Code\PPA-Techniques_for_Secure_Data_Analysis\Chapter_10\output\risk_register.json
+   - Summary Report    : D:\Vijay_Personal\workspace\Projects\Author_Books\Code\PPA-Techniques_for_Secure_Data_Analysis\Chapter_10\output\threat_model_report.txt
+
+============================================================
